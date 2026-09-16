@@ -1,6 +1,7 @@
 package com.app.aiassistant.controller;
 
-import com.app.aiassistant.entity.Task;
+import com.app.aiassistant.dto.TaskRequestDTO;
+import com.app.aiassistant.dto.TaskResponseDTO;
 import com.app.aiassistant.service.TaskService;
 import org.springframework.web.bind.annotation.*;
 
@@ -9,6 +10,7 @@ import java.util.List;
 @RestController
 @RequestMapping("tasks")
 public class TaskController {
+
     private final TaskService taskService;
 
     public TaskController(TaskService taskService) {
@@ -16,23 +18,28 @@ public class TaskController {
     }
 
     @GetMapping
-    public List<Task> findAll() {
+    public List<TaskResponseDTO> findAll() {
         return taskService.findAll();
     }
 
     @GetMapping("/{id}")
-    public Task findById(@PathVariable Long id) {
+    public TaskResponseDTO findById(@PathVariable Long id) {
         return taskService.findById(id);
     }
 
     @PostMapping
-    public Task insert(@RequestBody Task task) {
-        return taskService.insert(task);
+    public TaskResponseDTO insert(
+            @RequestBody TaskRequestDTO dto) {
+
+        return taskService.insert(dto);
     }
 
     @PutMapping("/{id}")
-    public Task update(@PathVariable Long id, @RequestBody Task task) {
-        return taskService.update(id, task);
+    public TaskResponseDTO update(
+            @PathVariable Long id,
+            @RequestBody TaskRequestDTO dto) {
+
+        return taskService.update(id, dto);
     }
 
     @DeleteMapping("/{id}")

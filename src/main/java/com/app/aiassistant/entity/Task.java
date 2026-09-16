@@ -7,14 +7,12 @@ import jakarta.persistence.*;
 import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
-import lombok.Setter;
 
-import java.time.LocalDate;
+
 import java.time.LocalDateTime;
 
 @Entity
 @Getter
-@Setter
 @Table(name = "task")
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 public class Task {
@@ -25,20 +23,49 @@ public class Task {
 
     private String title;
     private String description;
+    @Enumerated(EnumType.STRING)
     private TaskStatus status;
     @JsonFormat(pattern = "dd/MM/yyyy HH:mm:ss")
     private LocalDateTime dueAt;
     @JsonFormat(pattern = "dd/MM/yyyy HH:mm:ss")
     private LocalDateTime completedAt;
 
-    public Task(Long id, String title, String description, LocalDateTime dueAt, LocalDateTime completedAt) {
+    public Task(String title, String description, LocalDateTime dueAt) {
         if (dueAt.isBefore(LocalDateTime.now())) {
             throw new InvalidDateException("This task cannot be done before today.");
         }
-        this.id = id;
         this.title = title;
         this.description = description;
         this.dueAt = dueAt;
-        this.completedAt = completedAt;
+        this.status = TaskStatus.PENDING;
+    }
+
+    public void completeTask(){
+        this.status = TaskStatus.COMPLETED;
+        this.completedAt = LocalDateTime.now();
+    }
+
+    public void cancelTask() {
+        this.status = TaskStatus.CANCELED;
+    }
+
+    public void startTask() {
+        this.status = TaskStatus.RUNNING;
+    }
+
+    public void updateTask(
+            String title,
+            String description,
+            LocalDateTime dueAt) {
+
+        if (dueAt.isBefore(LocalDateTime.now())) {
+            throw new InvalidDateException(
+                    "This task cannot be scheduled in the past."
+            );
+        }
+
+        this.title = title;
+        this.description = description;
+        this.dueAt = dueAt;
     }
 }
