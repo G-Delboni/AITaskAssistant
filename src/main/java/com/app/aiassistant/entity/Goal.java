@@ -1,6 +1,7 @@
 package com.app.aiassistant.entity;
 
 import com.app.aiassistant.enums.GoalPeriod;
+import com.app.aiassistant.enums.GoalStatus;
 import com.app.aiassistant.enums.GoalTargetUnit;
 import jakarta.persistence.*;
 import lombok.AccessLevel;
@@ -9,7 +10,6 @@ import lombok.NoArgsConstructor;
 import lombok.Setter;
 
 import java.math.BigDecimal;
-import java.time.LocalDate;
 
 @Entity
 @Getter
@@ -24,15 +24,29 @@ public class Goal {
     private String title;
     private String description;
     private GoalPeriod period;
-    private BigDecimal targetValue;
+    @Enumerated(EnumType.STRING)
     private GoalTargetUnit targetUnit;
+    @Enumerated(EnumType.STRING)
+    private Double targetValue;
+    @Enumerated(EnumType.STRING)
+    private GoalStatus status;
 
-    public Goal(Long id, String title, String description, GoalPeriod period, BigDecimal targetValue, GoalTargetUnit targetUnit) {
-        this.id = id;
+    public Goal(String title, String description, GoalPeriod period, Double targetValue, GoalTargetUnit targetUnit) {
         this.title = title;
         this.description = description;
         this.period = period;
-        this.targetValue = targetValue;
         this.targetUnit = targetUnit;
+        this.targetValue = targetValue;
+        this.status = GoalStatus.PENDING;
+    }
+
+    public void completeGoal() {
+        this.status = GoalStatus.COMPLETED;
+    }
+
+    public void updateGoal(String title, String description, GoalPeriod period, Double targetValue, GoalTargetUnit targetUnit) {
+        this.title = title;
+        this.description = description;
+        this.period = period;
     }
 }

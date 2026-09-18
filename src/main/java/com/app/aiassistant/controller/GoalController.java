@@ -1,6 +1,7 @@
 package com.app.aiassistant.controller;
 
-import com.app.aiassistant.entity.Goal;
+import com.app.aiassistant.dto.GoalRequestDTO;
+import com.app.aiassistant.dto.GoalResponseDTO;
 import com.app.aiassistant.service.GoalService;
 import org.springframework.web.bind.annotation.*;
 
@@ -16,23 +17,23 @@ public class GoalController {
     }
 
     @GetMapping
-    public List<Goal> findAll() {
+    public List<GoalResponseDTO> findAll() {
         return goalService.findAll();
     }
 
     @GetMapping("/{id}")
-    public Goal findById(@PathVariable Long id) {
+    public GoalResponseDTO findById(@PathVariable Long id) {
         return goalService.findById(id);
     }
 
     @PostMapping
-    public Goal insert(@RequestBody Goal goal) {
-        return goalService.insert(goal);
+    public GoalResponseDTO insert(@RequestBody GoalRequestDTO goalRequestDTO) {
+        return goalService.insert(goalRequestDTO);
     }
 
     @PutMapping("/{id}")
-    public Goal update(@PathVariable Long id, @RequestBody Goal goal) {
-        return goalService.update(id, goal);
+    public GoalResponseDTO update(@PathVariable Long id, @RequestBody GoalRequestDTO goalRequestDTO ) {
+        return goalService.update(id, goalRequestDTO);
     }
 
     @DeleteMapping("/{id}")

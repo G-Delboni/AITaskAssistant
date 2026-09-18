@@ -27,15 +27,23 @@ public class Activity {
     private Task task;
     private Goal goal;
 
-    public Activity(Long id, String description, Integer durationMinutes, LocalDate date, Task task, Goal goal) {
-        if(date.isBefore(LocalDate.now())) {
-            throw new InvalidDateException("Invalid date");
-        }
-        this.id = id;
+    public Activity(String description, Integer durationMinutes, LocalDate date) {
         this.description = description;
         this.durationMinutes = durationMinutes;
         this.date = date;
-        this.task = task;
-        this.goal = goal;
+    }
+
+    public Long extractTaskId() {
+        return task.getId();
+    }
+
+    public Long extractGoalId() {
+        return goal.getId();
+    }
+
+    public void updateActivity(String description, Integer durationMinutes, LocalDate date) {
+        this.description = description;
+        this.durationMinutes = durationMinutes;
+        this.date = date;
     }
 }

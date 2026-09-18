@@ -1,6 +1,7 @@
 package com.app.aiassistant.controller;
 
-import com.app.aiassistant.entity.Activity;
+import com.app.aiassistant.dto.ActivityRequestDTO;
+import com.app.aiassistant.dto.ActivityResponseDTO;
 import org.springframework.web.bind.annotation.*;
 import com.app.aiassistant.service.ActivityService;
 
@@ -16,23 +17,23 @@ public class ActivityController {
     }
 
     @GetMapping
-    public List<Activity> findAll() {
+    public List<ActivityResponseDTO> findAll() {
         return activityService.findAll();
     }
 
     @GetMapping("/{id}")
-    public Activity findById(@PathVariable Long id) {
+    public ActivityResponseDTO findById(@PathVariable Long id) {
         return activityService.findById(id);
     }
 
     @PostMapping
-    public Activity insert(@RequestBody Activity activity) {
-        return activityService.insert(activity);
+    public ActivityResponseDTO insert(@RequestBody ActivityRequestDTO activityRequestDTO) {
+        return activityService.insert(activityRequestDTO);
     }
 
     @PutMapping("/{id}")
-    public Activity update(@PathVariable Long id, @RequestBody Activity activity) {
-        return activityService.update(id, activity);
+    public ActivityResponseDTO update(@PathVariable Long id, @RequestBody ActivityRequestDTO activityRequestDTO) {
+        return activityService.update(id, activityRequestDTO);
     }
 
     @DeleteMapping("/{id}")
