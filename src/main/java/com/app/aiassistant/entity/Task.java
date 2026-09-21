@@ -23,6 +23,7 @@ public class Task {
 
     private String title;
     private String description;
+    private Double durationMinutes;
     @Enumerated(EnumType.STRING)
     private TaskStatus status;
     @JsonFormat(pattern = "dd/MM/yyyy HH:mm:ss")
@@ -30,12 +31,13 @@ public class Task {
     @JsonFormat(pattern = "dd/MM/yyyy HH:mm:ss")
     private LocalDateTime completedAt;
 
-    public Task(String title, String description, LocalDateTime dueAt) {
+    public Task(String title, String description, Double durationMinutes, LocalDateTime dueAt) {
         if (dueAt.isBefore(LocalDateTime.now())) {
             throw new InvalidDateException("This task cannot be done before today.");
         }
         this.title = title;
         this.description = description;
+        this.durationMinutes = durationMinutes;
         this.dueAt = dueAt;
         this.status = TaskStatus.PENDING;
     }
@@ -49,13 +51,20 @@ public class Task {
         this.status = TaskStatus.CANCELED;
     }
 
-    public void startTask() {
+    public void pendingTask() {
+        this.status = TaskStatus.PENDING;
+        this.completedAt = null;
+    }
+
+    public void runTask() {
         this.status = TaskStatus.RUNNING;
+        this.completedAt = null;
     }
 
     public void updateTask(
             String title,
             String description,
+            Double durationMinutes,
             LocalDateTime dueAt) {
 
         if (dueAt.isBefore(LocalDateTime.now())) {
@@ -66,6 +75,7 @@ public class Task {
 
         this.title = title;
         this.description = description;
+        this.durationMinutes = durationMinutes;
         this.dueAt = dueAt;
     }
 }

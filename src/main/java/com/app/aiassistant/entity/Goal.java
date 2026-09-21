@@ -26,7 +26,6 @@ public class Goal {
     private GoalPeriod period;
     @Enumerated(EnumType.STRING)
     private GoalTargetUnit targetUnit;
-    @Enumerated(EnumType.STRING)
     private Double targetValue;
     @Enumerated(EnumType.STRING)
     private GoalStatus status;
@@ -48,5 +47,6 @@ public class Goal {
         this.title = title;
         this.description = description;
         this.period = period;
+        this.targetValue = targetValue;
     }
 }

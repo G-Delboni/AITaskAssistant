@@ -8,7 +8,6 @@ import com.app.aiassistant.enums.GoalTargetUnit;
 import com.app.aiassistant.exception.ResourceNotFoundException;
 import com.app.aiassistant.repository.ActivityRepository;
 import com.app.aiassistant.repository.GoalRepository;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDate;
@@ -18,9 +17,8 @@ import java.util.Set;
 
 @Service
 public class GoalService {
-    @Autowired
-    private GoalRepository goalRepository;
-    private ActivityRepository activityRepository;
+    private final GoalRepository goalRepository;
+    private final ActivityRepository activityRepository;
     /*
     TODO TOMORROW;; -> Make the relations between Activities, Goals and Tasks.
      */
@@ -30,24 +28,24 @@ public class GoalService {
         this.activityRepository =  activityRepository;
     }
 
-    private Integer calculateCompletedValue(List<Activity> activities, GoalTargetUnit goalTargetUnit) {
-        int completedValue = 0;
+    private Double calculateCompletedValue(List<Activity> activities, GoalTargetUnit goalTargetUnit) {
+        double completedValue = 0;
         switch (goalTargetUnit) {
 
             case MINUTES:
                 return activities.stream()
-                        .mapToInt(Activity::getDurationMinutes)
+                        .mapToDouble(Activity::getDurationMinutes)
                         .sum();
 
             case HOURS:
-                int totalMinutes = activities.stream()
-                        .mapToInt(Activity::getDurationMinutes)
+                double totalMinutes = activities.stream()
+                        .mapToDouble(Activity::getDurationMinutes)
                         .sum();
 
                 return totalMinutes / 60;
 
             case TIMES:
-                return activities.size();
+                return (double) activities.size();
 
             case DAYS:
                 Set<LocalDate> days = new HashSet<>();
@@ -56,25 +54,46 @@ public class GoalService {
                     days.add(activity.getDate());
                 }
 
-                return days.size();
+                return (double) days.size();
 
             default:
-                return 0;
+                return completedValue;
         }
     }
 
-    private double calculateCompletedPercentage(Integer completedValue, Goal goal){
+    private double calculateCompletedPercentage(Double completedValue, Goal goal){
         Double targetValue = goal.getTargetValue();
         if (targetValue == 0){
             return 0;
         }
-        return targetValue * 100 / completedValue;
+        return completedValue * 100 / targetValue;
+    }
+
+    public void updateGoalProgress(Long goalId) {
+
+        Goal goal = goalRepository.findById(goalId)
+                .orElseThrow(() ->
+                        new ResourceNotFoundException("Goal not found."));
+
+        List<Activity> activities =
+                activityRepository.findByGoalId(goalId);
+
+        Double completedValue =
+                calculateCompletedValue(
+                        activities,
+                        goal.getTargetUnit());
+
+        if (completedValue >= goal.getTargetValue()) {
+            goal.completeGoal();
+        }
+
+        goalRepository.save(goal);
     }
 
     private GoalResponseDTO toGoalResponseDTO(Goal goal) {
         GoalTargetUnit goalTargetUnit = goal.getTargetUnit();
-        List<Activity> activities = activityRepository.findbyGoalId(goal.getId());
-        Integer completedValue =  calculateCompletedValue(activities, goalTargetUnit);
+        List<Activity> activities = activityRepository.findByGoalId(goal.getId());
+        Double completedValue =  calculateCompletedValue(activities, goalTargetUnit);
         double completedPercentage =  calculateCompletedPercentage(completedValue, goal);
 
         return new GoalResponseDTO(

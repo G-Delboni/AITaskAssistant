@@ -42,6 +42,11 @@ public class TaskController {
         return taskService.update(id, dto);
     }
 
+    @PatchMapping("/{id}/cancel")
+    public TaskResponseDTO cancelTask(@PathVariable Long id) {
+        return taskService.cancelTask(id);
+    }
+
     @DeleteMapping("/{id}")
     public void deleteById(@PathVariable Long id) {
         taskService.delete(id);

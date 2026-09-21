@@ -22,9 +22,16 @@ public class Activity {
 
     private String description;
     private Integer durationMinutes;
+
     @JsonFormat(pattern = "dd/MM/yyyy")
     private LocalDate date;
+
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "task_id", nullable = true)
     private Task task;
+
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "goal_id", nullable = true)
     private Goal goal;
 
     public Activity(String description, Integer durationMinutes, LocalDate date) {
@@ -34,11 +41,26 @@ public class Activity {
     }
 
     public Long extractTaskId() {
-        return task.getId();
+        return hasTask() ? task.getId() : null;
     }
 
-    public Long extractGoalId() {
-        return goal.getId();
+    public Long extractGoalId() {return hasGoal() ? goal.getId() : null;
+    }
+
+    public void linkTask(Task task) {
+        this.task = task;
+    }
+
+    public void linkGoal(Goal goal) {
+        this.goal = goal;
+    }
+
+    public Boolean hasGoal() {
+        return goal != null;
+    }
+
+    public Boolean hasTask(){
+        return task !=null;
     }
 
     public void updateActivity(String description, Integer durationMinutes, LocalDate date) {

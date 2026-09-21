@@ -10,16 +10,22 @@ public class TaskResponseDTO {
     private Long id;
     private String title;
     private String description;
+    private Double durationMinutes;
+    private Double completedValue;
+    private Double completedPercentage;
     private TaskStatus status;
     private LocalDateTime dueAt;
     private LocalDateTime completedAt;
 
-    public TaskResponseDTO(Long id, String title, String description, TaskStatus status, LocalDateTime completedAt, LocalDateTime dueAt) {
+    public TaskResponseDTO(Long id, String title, String description, Double durationMinutes, Double completedValue, Double completedPercentage, TaskStatus status, LocalDateTime dueAt, LocalDateTime completedAt) {
         this.id = id;
         this.title = title;
         this.description = description;
+        this.durationMinutes = durationMinutes;
+        this.completedValue = completedValue;
+        this.completedPercentage = completedPercentage;
         this.status = status;
-        this.completedAt = completedAt;
         this.dueAt = dueAt;
+        this.completedAt = completedAt;
     }
 }

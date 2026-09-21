@@ -3,8 +3,10 @@ package com.app.aiassistant.dto;
 import com.app.aiassistant.enums.GoalPeriod;
 import com.app.aiassistant.enums.GoalStatus;
 import com.app.aiassistant.enums.GoalTargetUnit;
+import lombok.Getter;
+import lombok.Setter;
 
-
+@Getter
 public class GoalResponseDTO {
     private Long id;
     private String title;
@@ -12,11 +14,11 @@ public class GoalResponseDTO {
     private GoalPeriod period;
     private Double targetValue;
     private GoalTargetUnit targetUnit;
-    private Integer completedValue;
+    private Double completedValue;
     private Double completedPercentage;
     private GoalStatus status;
 
-    public GoalResponseDTO(Long id, String title, String description, GoalPeriod period, Double targetValue, GoalTargetUnit targetUnit, Integer completedValue, Double completedPercentage) {
+    public GoalResponseDTO(Long id, String title, String description, GoalPeriod period, Double targetValue, GoalTargetUnit targetUnit, Double completedValue, Double completedPercentage) {
         this.id = id;
         this.title = title;
         this.description = description;
