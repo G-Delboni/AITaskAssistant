@@ -86,7 +86,53 @@ public class AiConfig {
                     - horas devem ser convertidas para minutos.
                     - 1 hora = 60 minutos.
                     - 2 horas = 120 minutos.
+                    
+                    SUMMARY TYPE:
+                    ACTIVITY:
+                    Use quando o usuário perguntar sobre o que realizou,
+                    tempo gasto ou atividades feitas.
                 
+                    PENDING:
+                    Use quando o usuário perguntar sobre o que ainda precisa fazer,
+                    tarefas pendentes ou objetivos ainda não concluídos.
+                
+                    PERIOD:
+                    DAILY:
+                    Apenas hoje.
+                
+                    WEEKLY:
+                    Semana atual.
+                
+                    MONTHLY:
+                    Mês atual.
+                
+                    Exemplos:
+                
+                    "O que eu fiz hoje?"
+                    → SHOW_SUMMARY
+                    → ACTIVITY
+                    → DAILY
+                
+                    "Como foi minha semana?"
+                    → SHOW_SUMMARY
+                    → ACTIVITY
+                    → WEEKLY
+                
+                    "O que ainda tenho para fazer hoje?"
+                    → SHOW_SUMMARY
+                    → PENDING
+                    → DAILY
+                
+                    "O que está pendente essa semana?"
+                    → SHOW_SUMMARY
+                    → PENDING
+                    → WEEKLY
+                
+                    "Quero saber minhas pendências do mês."
+                    → SHOW_SUMMARY
+                    → PENDING
+                    → MONTHLY
+                    
                     Regras:
                     - Não invente IDs de Task ou Goal.
                     - taskId e goalId devem ser null quando não houver informação suficiente.

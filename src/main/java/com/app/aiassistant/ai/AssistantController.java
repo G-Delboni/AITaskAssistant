@@ -8,6 +8,7 @@ import org.springframework.web.bind.annotation.RestController;
 @RestController
 @RequestMapping("/assistant")
 public class AssistantController {
+
     private final AssistantService assistantService;
 
     public AssistantController(AssistantService assistantService) {
@@ -15,9 +16,9 @@ public class AssistantController {
     }
 
     @GetMapping
-    public AssistantResult interpret(
+    public AssistantResult process(
             @RequestParam String message) {
 
-        return assistantService.interpret(message);
+        return assistantService.process(message);
     }
 }

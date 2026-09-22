@@ -10,5 +10,5 @@ public interface ActivityRepository extends JpaRepository<Activity,Long> {
     List<Activity> findByGoalId(Long goalId);
     List<Activity> findByTaskId(Long taskId);
     List<Activity> findByDate(LocalDate date);
-    List<Activity> findByPeriod(LocalDate initialDate, LocalDate finalDate);
+    List<Activity> findByDateBetween(LocalDate initialDate, LocalDate finalDate);
 }

@@ -1,12 +1,12 @@
 package com.app.aiassistant.ai;
 
-public record AssistantCommand (
+public record AssistantCommand(
         AssistantIntent intent,
         String title,
         String description,
-        SummaryPeriod summaryPeriod,
         Integer durationMinutes,
         Long taskId,
-        Long GoalId
-){
-}
+        Long goalId,
+        SummaryType summaryType,
+        SummaryPeriod period
+) {}

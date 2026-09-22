@@ -28,7 +28,7 @@ public class GoalService {
         this.activityRepository =  activityRepository;
     }
 
-    private Double calculateCompletedValue(List<Activity> activities, GoalTargetUnit goalTargetUnit) {
+    public Double calculateCompletedValue(List<Activity> activities, GoalTargetUnit goalTargetUnit) {
         double completedValue = 0;
         switch (goalTargetUnit) {
 
@@ -61,7 +61,7 @@ public class GoalService {
         }
     }
 
-    private double calculateCompletedPercentage(Double completedValue, Goal goal){
+    public double calculateCompletedPercentage(Double completedValue, Goal goal){
         Double targetValue = goal.getTargetValue();
         if (targetValue == 0){
             return 0;
