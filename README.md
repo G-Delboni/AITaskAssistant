@@ -23,6 +23,7 @@ Manage Tasks, Goals and Activities through a REST API — or just talk to it in 
 Lume lets users register what they want to do, what they want to achieve and what they have already done, then understands messages like:
 
 > *“Quero estudar Java por 10 horas essa semana.”“Estudei Java por 1 hora hoje.”“O que eu ainda tenho para fazer?”*
+
 > *“I want to study Java for 10 hours this week.”“I studied Java for 1 hour today.”“What do i still have to do?”*
 
 The core idea of the project is a **strict separation of responsibilities**:
