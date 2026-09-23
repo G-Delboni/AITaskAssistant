@@ -110,31 +110,14 @@ public class TaskService {
         return toResponseDTO(task);
     }
 
-    private LocalDateTime parseDate(String dateString) {
-
-        DateTimeFormatter formatter =
-                DateTimeFormatter.ofPattern("dd/MM/uuuu HH:mm:ss")
-                        .withResolverStyle(ResolverStyle.STRICT);
-
-        try {
-            return LocalDateTime.parse(dateString, formatter);
-
-        } catch (DateTimeParseException e) {
-            throw new InvalidDateException(
-                    "Invalid date: " + dateString + " | " + e.getMessage()
-            );
-        }
-    }
 
     public TaskResponseDTO insert(TaskRequestDTO dto) {
-
-        LocalDateTime dueAt = parseDate(dto.getDueAt());
 
         Task task = new Task(
                 dto.getTitle(),
                 dto.getDescription(),
                 dto.getDurationMinutes(),
-                dueAt
+                dto.getDueAt()
         );
 
         Task savedTask = taskRepository.save(task);
@@ -150,13 +133,11 @@ public class TaskService {
                 .orElseThrow(() ->
                         new ResourceNotFoundException("Task not found."));
 
-        LocalDateTime dueAt = parseDate(dto.getDueAt());
-
         task.updateTask(
                 dto.getTitle(),
                 dto.getDescription(),
                 dto.getDurationMinutes(),
-                dueAt
+                dto.getDueAt()
         );
         updateTaskProgress(task.getId());
         return toResponseDTO(taskRepository.save(task));
