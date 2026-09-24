@@ -296,6 +296,14 @@ Separating the external API representation from internal entities. This became e
 
 Using `ChatClient` to send system instructions and user messages, inject dynamic data (such as the current date), request structured output, convert responses into Java objects and generate natural-language answers from structured data. It also showed me the importance of **validating imperfect model output before executing any business operation**.
 
+It’s important to say that the AI uses tokens fast, so I cannot test the summary function correctly as it uses all the available tokens for the day, because i use a free plan, but of course this is fixable in the future.
+
+https://github.com/user-attachments/assets/26cd0cb6-bfcb-49f0-9568-279051994baa
+
+
+
+
+
 ### AI and deterministic business logic
 
 The AI can understand *“Estudei Java por duas horas” “I have studied Java for 2 hours”*, but Java decides:
@@ -381,7 +389,7 @@ On Windows:
 gradlew.bat bootRun
 ```
 
-Or run the main Spring Boot class directly from IntelliJ IDEA. The API will be available at `http://localhost:8080`.
+Or run the main Spring Boot class directly from IntelliJ IDEA. The API will be available at `http://localhost:8081`.
 
 ### 5. Try it
 
@@ -411,6 +419,10 @@ curl -G "http://localhost:8080/assistant" \
 ```
 
 ---
+
+https://github.com/user-attachments/assets/2022a959-8d50-40ca-9dcb-0e84551dc230
+
+
 
 Built by **Gabriel Delboni Dias** ·
 [LinkedIn](https://www.linkedin.com/in/gabriel-delboni-dias/) ·
