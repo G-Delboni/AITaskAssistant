@@ -298,8 +298,6 @@ Using `ChatClient` to send system instructions and user messages, inject dynamic
 
 It’s important to say that the AI uses tokens fast, so I cannot test the summary function correctly as it uses all the available tokens for the day, because i use a free plan, but of course this is fixable in the future.
 
-https://github.com/user-attachments/assets/26cd0cb6-bfcb-49f0-9568-279051994baa
-
 
 
 
