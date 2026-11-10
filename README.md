@@ -1,20 +1,12 @@
-# README
-
 # ✨ Lume
 
 **An AI-powered personal productivity assistant built with Java and Spring Boot.**
 
 Manage Tasks, Goals and Activities through a REST API — or just talk to it in natural language.
 
-[Java 21](https://img.shields.io/badge/Java-21-ED8B00?style=for-the-badge&logo=openjdk&logoColor=white)
+🌐 **English** · [Português](README.pt-BR.md)
 
-[Spring Boot](https://img.shields.io/badge/Spring%20Boot-4.1.1-6DB33F?style=for-the-badge&logo=springboot&logoColor=white)
-
-[Spring AI](https://img.shields.io/badge/Spring%20AI-2.0.1-6DB33F?style=for-the-badge&logo=spring&logoColor=white)
-
-[Google Gemini](https://img.shields.io/badge/Google%20Gemini-4285F4?style=for-the-badge&logo=googlegemini&logoColor=white)
-
-[PostgreSQL](https://img.shields.io/badge/PostgreSQL-4169E1?style=for-the-badge&logo=postgresql&logoColor=white)
+![Java 21](https://img.shields.io/badge/Java-21-ED8B00?style=for-the-badge&logo=openjdk&logoColor=white) ![Spring Boot](https://img.shields.io/badge/Spring%20Boot-4.1.1-6DB33F?style=for-the-badge&logo=springboot&logoColor=white) ![Spring AI](https://img.shields.io/badge/Spring%20AI-2.0.1-6DB33F?style=for-the-badge&logo=spring&logoColor=white) ![Google Gemini](https://img.shields.io/badge/Google%20Gemini-4285F4?style=for-the-badge&logo=googlegemini&logoColor=white) ![PostgreSQL](https://img.shields.io/badge/PostgreSQL-4169E1?style=for-the-badge&logo=postgresql&logoColor=white)
 
 ---
 
@@ -22,26 +14,26 @@ Manage Tasks, Goals and Activities through a REST API — or just talk to it in 
 
 Lume lets users register what they want to do, what they want to achieve and what they have already done, then understands messages like:
 
-> *“Quero estudar Java por 10 horas essa semana.”“Estudei Java por 1 hora hoje.”“O que eu ainda tenho para fazer?”*
+> *“Quero estudar Java por 10 horas essa semana.” · “Estudei Java por 1 hora hoje.” · “O que eu ainda tenho para fazer?”*
 
-> *“I want to study Java for 10 hours this week.”“I studied Java for 1 hour today.”“What do i still have to do?”*
+> *“I want to study Java for 10 hours this week.” · “I studied Java for 1 hour today.” · “What do I still have to do?”*
 
 The core idea of the project is a **strict separation of responsibilities**:
 
 > 🧠 **The AI interprets user intent.**
-⚙️ **Java controls business rules and database operations.**
-> 
+>
+> ⚙️ **Java controls business rules and database operations.**
 
 The model never touches the database and never decides deterministic business rules. It only turns free text into a structured command, which is validated and executed by regular Spring services.
 
 ## 📑 Table of Contents
 
-- [Technologies](about:blank#-technologies)
-- [Features](about:blank#-features)
-- [The process](about:blank#-the-process)
-- [What I learned](about:blank#-what-i-learned)
-- [How can it be improved](about:blank#-how-can-it-be-improved)
-- [Running the project](about:blank#-running-the-project)
+- [Technologies](#-technologies)
+- [Features](#-features)
+- [The process](#-the-process)
+- [What I learned](#-what-i-learned)
+- [How can it be improved](#-how-can-it-be-improved)
+- [Running the project](#-running-the-project)
 
 ---
 
@@ -52,9 +44,9 @@ The model never touches the database and never decides deterministic business ru
 | Language | Java 21 |
 | Framework | Spring Boot 4.1.1 |
 | AI integration | Spring AI 2.0.1 + Google Gemini |
-| Database | PostgreSQL |
+| Database | PostgreSQL (in-memory H2 when no datasource is configured) |
 | Persistence | Spring Data JPA + Hibernate |
-| JSON | Jackson 3 |
+| JSON | Jackson 3 (Spring Boot default), plus Jackson 2 databind for one custom deserializer |
 | Build | Gradle |
 | Tests | Spring Boot Test + MockMvc |
 | Tools | IntelliJ IDEA, Postman |
@@ -79,21 +71,20 @@ A Task represents something the user plans to do.
 When the sum of the related Activities reaches the Task’s target duration, the Task is **automatically marked as completed**. A canceled Task **stays canceled**, even if Activities are added or changed later.
 
 > Example: a Task with a target of 120 minutes and two Activities of 60 minutes each reaches 100% and becomes `COMPLETED`.
-> 
 
 ### 🎯 Goal Management
 
 A Goal is a measurable objective tracked over a period.
 
 - Title and description
-- Period (`goalPeriod`)
+- Period (`goalPeriod`): `DAILY`, `WEEKLY`
 - Target value and unit: `MINUTES`, `HOURS`, `DAYS`, `TIMES`
 - Calculated progress and percentage
 
 Examples:
 
 - Study Java for 10 hours this week
-- Practice programming 5 times this month
+- Practice programming 5 times this week
 - Study for 30 minutes every day
 
 ### 📝 Activity Management
@@ -162,7 +153,7 @@ Supported intents:
 | `CREATE_GOAL` | Create a Goal |
 | `REGISTER_ACTIVITY` | Register something already done |
 | `COMPLETE_TASK` | Mark a Task as completed |
-| `LIST_TASKS` | List / filter Tasks |
+| `LIST_TASKS` | List Tasks |
 | `SHOW_SUMMARY` | Show an activity or pending summary |
 | `UNKNOWN` | Message not understood |
 
@@ -178,8 +169,8 @@ flowchart TD
     C --> S[AssistantService]
     S -->|1. interpret message| G1[Gemini]
     G1 --> CMD[AssistantCommand]
-    CMD --> SAN["sanitizeCommand()"]
-    SAN --> D{Detect intent}
+    CMD --> DUE["resolveDueAt()"]
+    DUE --> D{Detect intent}
     D -->|CREATE_TASK| TS[TaskService]
     D -->|COMPLETE_TASK| TS
     D -->|LIST_TASKS| TS
@@ -200,7 +191,7 @@ The first Gemini request only understands the user’s intention. For example:
 
 ```
 "Quero estudar Java por 10 horas essa semana"
-"I want to study Java for 10 hours this weeek."
+"I want to study Java for 10 hours this week."
 ```
 
 becomes (simplified):
@@ -217,15 +208,20 @@ becomes (simplified):
 
 The model **does not modify the database**.
 
-### 2. Command sanitization
+### 2. Handling imperfect model output
 
-`AssistantCommand` groups fields used by different operations, so the model can occasionally fill in fields that don’t belong to the detected intent. `sanitizeCommand()` uses the intent to remove them.
+`AssistantCommand` groups fields used by different operations, so the model can occasionally fill in fields that don’t belong to the detected intent. `AssistantService.process()` uses the intent to choose a branch, and each branch reads only the fields of its own operation, so anything else the model filled in is ignored.
 
-| Intent | Fields that must be removed |
+| Intent | Fields that are read |
 | --- | --- |
-| `CREATE_GOAL` | `taskId`, `dueAt`, `summaryType`, `summaryPeriod` |
-| `CREATE_TASK` | `goalPeriod`, `targetValue`, `targetUnit`, `summaryType`, `summaryPeriod` |
-| `LIST_TASKS` | everything except fields relevant to task listing/filtering |
+| `CREATE_TASK` | `title`, `description`, `durationMinutes`, `dueAt`, `localDate` |
+| `CREATE_GOAL` | `title`, `description`, `goalPeriod`, `targetValue`, `targetUnit` |
+| `REGISTER_ACTIVITY` | `description`, `durationMinutes`, `localDate`, `taskId`, `goalId` |
+| `COMPLETE_TASK` | `title`, `description`, `localDate` |
+| `LIST_TASKS` | none — all Tasks are returned |
+| `SHOW_SUMMARY` | `summaryType`, `summaryPeriod` |
+
+The response is requested as structured output with schema validation, and `resolveDueAt()` treats an empty `dueAt` or the literal string `"null"` as a missing value.
 
 The AI provides interpretation; Java guarantees consistency.
 
@@ -244,7 +240,7 @@ The command is executed by the appropriate service. The services are responsible
 
 The current date is sent to the model dynamically, and the rules are explicit:
 
-- Date without time → the date is returned and `dueAt` may be `null` (Java can interpret it as the end of that day).
+- Date without time → the date is returned and `dueAt` may be `null` (Java interprets it as the end of that day, 23:59:59).
 - Explicit time → `dueAt` holds the real date and time.
 - **The AI never invents a time the user did not provide.**
 
@@ -296,15 +292,11 @@ Separating the external API representation from internal entities. This became e
 
 Using `ChatClient` to send system instructions and user messages, inject dynamic data (such as the current date), request structured output, convert responses into Java objects and generate natural-language answers from structured data. It also showed me the importance of **validating imperfect model output before executing any business operation**.
 
-It’s important to say that the AI uses tokens fast, so I cannot test the summary function correctly as it uses all the available tokens for the day, because i use a free plan, but of course this is fixable in the future.
-
-
-
-
+It’s important to say that the AI uses tokens fast, so I cannot test the summary function correctly as it uses all the available tokens for the day, because I use a free plan, but of course this is fixable in the future.
 
 ### AI and deterministic business logic
 
-The AI can understand *“Estudei Java por duas horas” “I have studied Java for 2 hours”*, but Java decides:
+The AI can understand *“Estudei Java por duas horas”* / *“I have studied Java for 2 hours”*, but Java decides:
 
 - Which Activity should be created?
 - Which Goal should be updated?
@@ -323,17 +315,17 @@ Writing integration tests with Spring Boot and MockMvc to validate that Activiti
 
 | Improvement | Description |
 | --- | --- |
-| **Multiple operations** | Handle messages such as *“Crie uma meta de estudar Java por 10 horas essa semana e uma meta de estudar segurança por 5 horas”*  “Create a goal of studying Java for 10 hours this week and a goal of studying cybersecurity for 5 hours” by returning a list of structured commands instead of a single `AssistantCommand`. |
-| **Goal → Task decomposition** | Turn a Goal (e.g. 10 hours of Java this week) into smaller Tasks distributed across the week: the Goal is the objective, the Tasks are the concrete actions. |
-| **Conversation memory** | Keep conversational context so users can say *“Divida ela em tarefas” “Divide it in tasks”* after creating a Goal. Tasks, Goals and Activities stay in PostgreSQL; memory stores only conversation context. |
-| **Entity resolution** | Resolve entities from natural language instead of IDs (*“Concluí a tarefa de estudar Java”*) (”I did the Study Java task), with search and disambiguation when several Tasks look similar. |
+| **Multiple operations** | Handle messages such as *“Crie uma meta de estudar Java por 10 horas essa semana e uma meta de estudar segurança por 5 horas”* / *“Create a goal of studying Java for 10 hours this week and a goal of studying cybersecurity for 5 hours”* by returning a list of structured commands instead of a single `AssistantCommand`. |
+| **Goal → Task decomposition** | Turn a Goal (e.g. 10 hours of Java this week) into smaller Tasks distributed across the week: the Goal is the objective, the Tasks are the concrete actions. |
+| **Conversation memory** | Keep conversational context so users can say *“Divida ela em tarefas”* / *“Divide it in tasks”* after creating a Goal. Tasks, Goals and Activities stay in PostgreSQL; memory stores only conversation context. |
+| **Entity resolution** | Resolve entities from natural language instead of IDs (*“Concluí a tarefa de estudar Java”* / *“I did the Study Java task”*), with search and disambiguation when several Tasks look similar. |
 | **Voice interaction** | Speech-to-Text → Lume → Text-to-Speech. |
 | **Frontend** | Task dashboard, Goal progress, Activity history, reports, chat interface and voice controls. |
 | **Deployment** | Run it as a remotely accessible service: Frontend → Backend API → PostgreSQL → Gemini API. |
 
 ---
 
-## ▶️ Running the project
+## ▶ Running the project
 
 ### Requirements
 
@@ -346,19 +338,21 @@ Writing integration tests with Spring Boot and MockMvc to validate that Activiti
 ### 1. Clone the repository
 
 ```bash
-git clone <repository-url>
-cd <project-directory>
+git clone https://github.com/G-Delboni/AITaskAssistant.git
+cd AITaskAssistant
 ```
 
 ### 2. Configure the database
 
-Create a PostgreSQL database and set the connection in `application.properties` (or `application.yml`):
+Create a PostgreSQL database and set the connection in `src/main/resources/application.properties`:
 
 ```
 spring.datasource.url=jdbc:postgresql://localhost:5432/aiassistant
 spring.datasource.username=postgres
 spring.datasource.password=your_password
 ```
+
+The repository’s `application.properties` does not define a datasource. Without these properties, Spring Boot uses the in-memory H2 database that is also on the classpath, and the data is lost when the application stops.
 
 ### 3. Configure Gemini
 
@@ -368,7 +362,7 @@ Never commit the API key. Set it as an environment variable:
 export GEMINI_API_KEY=your_api_key
 ```
 
-And reference it in the configuration:
+It is already referenced in the configuration:
 
 ```
 spring.ai.google.genai.api-key=${GEMINI_API_KEY}
@@ -387,7 +381,7 @@ On Windows:
 gradlew.bat bootRun
 ```
 
-Or run the main Spring Boot class directly from IntelliJ IDEA. The API will be available at `http://localhost:8081`.
+Or run the main Spring Boot class directly from IntelliJ IDEA. The API will be available at `http://localhost:8080`.
 
 ### 5. Try it
 
@@ -398,30 +392,12 @@ GET /assistant?message=Quero estudar Java hoje por 2 horas
 GET /assistant?message=I wanna study Java for 2 hours today
 ```
 
-Or with `curl`:
+The REST endpoints are `/tasks`, `/goals` and `/activities`.
 
-```bash
-curl -G "http://localhost:8080/assistant" \
-  --data-urlencode "message=Quero estudar Java hoje por 2 horas"
-```
-
-```jsx
-curl -G "http://localhost:8080/assistant" \
-  --data-urlencode "message=I wanna study Java for 2 hours today"
-```
-
-### Running the tests
+### 6. Run the tests
 
 ```bash
 ./gradlew test
 ```
 
----
-
-https://github.com/user-attachments/assets/2022a959-8d50-40ca-9dcb-0e84551dc230
-
-
-
-Built by **Gabriel Delboni Dias** ·
-[LinkedIn](https://www.linkedin.com/in/gabriel-delboni-dias/) ·
-[GitHub](https://github.com/G-Delboni)
+The integration tests use MockMvc against the Task and Activity endpoints and do not call the assistant endpoint.
